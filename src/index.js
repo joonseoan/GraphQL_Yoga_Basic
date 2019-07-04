@@ -24,42 +24,7 @@ import { GraphQLServer } from 'graphql-yoga';
 */
 
 /* 
-    When two arguments are defined all with not mendatory
-    
-position is undefined
-Joon Seo · Lecture 15 · 18 minutes ago
-Hi in lecture 15, I have an error.
-
-I was mirroring the lecture code but I tested it slightly differently
-
----- Schema ----
-
-- name and position argus are not required.
-
-type Query {
-        greeting(name: String, position: String): String!
-       
-}
- 
- Query: {
-              greeting(parent, { name, position }, ctx, info) {
-            if(name && position) {
-                return `Hello, ${name}. Your position is at ${position}`
-            } else if(position) {
- 
-                return `Your positon ${positon}`
-                
-            } else if(name) {
-                return `Your name is ${name}`
-            } else {
-                return 'Hello'
-            }
-    }
-}
-
-
-I tested  at the interface with a request like
-
+   
 1) greeting(name: "", position: "Best manager" ) => error: position is undefined
 
 2) greeting(name: null, position: "Best Employee" ) => error: position is undefined
