@@ -1,107 +1,159 @@
 import { GraphQLServer } from 'graphql-yoga';
 
-// 1)
-// import Name_NAME_Modified, { message, location, getGreeting } from './myModule';
-// console.log(Name_NAME_Modified)
-// console.log(message, location)
-// console.log(getGreeting('James'))
+// {greeting with argument}
+// argument "name: String!" about the client's request
+//  not about resolver function. Please,find the one below
+//  that does not have the argument in the resolver.
+// However, when the client requests greeting and 
+//  when the argument is mandatory like (name: String!) in schema
+//  it must have the argument like greeting(name: 'Jess')
 
+// localhost:4000
+// with Argument
+//  ex) greeting(name: 'Jess')
+// withough Argument
+// ex) greeting - o, greeting() - x
 
-// 2) 
-// GraphQL Scalar type: String, Boolean, Float, Int, ID
+/* 
+    Important!!!
+    When we set the second argument in client's request,
+    we must provide the first argumetn whichi is not "undefined" or "null"
+    even though the first argument is nullable in the schema.!!!
+        greeting(name: "jake", position: "ddd" ) ==> o
+        greeting(name: "" || null, position: "ddd" ) ==> error
+*/
 
-// type definition (schema)
-const typeDefs = `
-    type Query {
-        hello: String!
-        helloquery: String!
-        helloold: String!
-        name: String!
-        location: String!
-        bio: String!
-        id: ID!
-        age: Int!
-        employeed: Boolean!
-        gpa: Float
-        title: String!
-        price: Float!
-        releaseYear: Int
-        rating: Float
-        isStock: Boolean!
-    }
-`
+/* 
+    When two arguments are defined all with not mendatory
+    
+position is undefined
+Joon Seo · Lecture 15 · 18 minutes ago
+Hi in lecture 15, I have an error.
 
-// Resolvers
-const resolvers = {
-    Query: {
+I was mirroring the lecture code but I tested it slightly differently
 
-        // hello: 'hello'
-        // ES16
+---- Schema ----
 
-        hello() {
-            return 'This is my first query'
-        },
+- name and position argus are not required.
 
-        // arrow ok. but if we use 'this' tp get another property {name: 'james'}
-        // it does not work.
-        // In Object, this in the function is only for binding!!!
-        helloquery: () => {
-            // return `james, ${this.hello}` // this is undefined because
-            // arrow is already used to bind this function to Query 
-            return 'This is my firt query.'
-        },
-
-        // ES 15
-        helloold: function () {
-            return 'This is my first query'
-        },
-
-        name() {
-            return 'James'
-        },
-        location() {
-            return 'Oakville'
-        },
-        bio() {
-            return 'Developer'
-        },
-        id() {
-            return 'abc123'
-        },
-        age() {
-            return 25
-        },  
-        employeed() {
-            return true
-        },  
-        gpa() {
-            return null
-        },
-        title() {
-            return 'Mac Book'
-        },
-        price() {
-            return 3333.99
-        },
-        releaseYear() {
-            return 2019
-        },
-        rating() {
-            return 4.5
-        },
-        isStock() {
-            return false
-        }    
-
-
+type Query {
+        greeting(name: String, position: String): String!
+       
+}
+ 
+ Query: {
+              greeting(parent, { name, position }, ctx, info) {
+            if(name && position) {
+                return `Hello, ${name}. Your position is at ${position}`
+            } else if(position) {
+ 
+                return `Your positon ${positon}`
+                
+            } else if(name) {
+                return `Your name is ${name}`
+            } else {
+                return 'Hello'
+            }
     }
 }
 
 
+I tested  at the interface with a request like
+
+1) greeting(name: "", position: "Best manager" ) => error: position is undefined
+
+2) greeting(name: null, position: "Best Employee" ) => error: position is undefined
+
+3) greeting(name: "Mike", position: "Best manager" ) => of course working
+
+4) greeting => of course working
+
+*/
+
+const typeDefs = `
+    type Query {
+        greeting(name: String, position: String): String!
+        add(a: Float!, b: Float!): Float!
+        me: User!
+        post: Post!
+    }
+
+    type User {
+        id: ID!
+        name: String!
+        email: String!
+        age: Int
+    }
+
+    type Post {
+        id: ID!
+        title: String!
+        body: String!
+        published: Int! 
+    }
+`
+
+const resolvers = {
+    Query: {
+        // Not yet about arument
+        // 1) greeting(){ return 'Hello' }// ==> working even though arg is mandatory above!!!
+        // 2) Of course in case (name: String) which is not mandatory in schema, 
+        //      greeting(){ return 'Hello' } is still also works!!
+        
+        // 3) 4 differetn argument!!!: parent, args, ctx, info
+        //      args for argument!!!
+
+        // 4) ES6
+        greeting(parent, { name, position }, ctx, info) {        
+        // old version
+        // greeting(parent, args, ctx, info) {
+        //  console.log(args) //  receives a object { name: Jess }
+
+            console.log(name) 
+            // When "name:String" is not mandatory,
+            //  we can build up the logic below. ******
+            if(name && position) {
+                return `Hello, ${name}. Your position is at ${position}`
+            } else if(position) {
+
+                return `Your positon ${positon}`
+                
+            } else if(name) {
+                return `Your name is ${name}`
+            } else {
+                return 'Hello'
+            }
+
+            // When "name: String!" in Schema, we can build a single logic
+            // if(name) {
+            //     return `Hello, ${name}`
+            // }
+
+        },
+        add(parent, {a, b}) {
+            return a + b
+        },
+        me() {
+            return {
+                id: '123qwe',
+                name: 'Mike',
+                email: 'abc@abc.com'
+            }
+        },
+        post() {
+            return {
+                id: '456rty',
+                title: 'History',
+                body: '',
+                published: 2003
+            }
+        }
+    }
+}
 
 const server = new GraphQLServer({
     typeDefs,
     resolvers
 });
 
-server.start(() => console.log('Server is up at localhost 4000'));
+server.start(() => console.log('Query: operational query with argument'));

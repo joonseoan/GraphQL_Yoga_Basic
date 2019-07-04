@@ -1,0 +1,4 @@
+1. npm i --save-dev nodemon
+
+2. package.json : Remember it is a babel-node
+"start": "nodemon src/index.js --exec babel-node"
