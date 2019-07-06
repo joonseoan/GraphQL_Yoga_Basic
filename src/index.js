@@ -1,11 +1,6 @@
-import { GraphQLServer } from 'graphql-yoga';
+// Challenge 1
+import { GraphQLServer }  from 'graphql-yoga';
 
-
-
-
-// 2) Custom Type
-
-// Demo Data
 const users = [{
     id: 'ert345',
     name: 'Mike',
@@ -22,31 +17,52 @@ const users = [{
     age: 45
 }];
 
-// Challenge
 const posts = [{
     id: 'qqq',
     title: 'Apple',
-    description: 'Sweet',
-    published: 2004
+    body: 'Sweet',
+    published: true,
+    author: 'ert345'
 }, {
     id: 'www',
     title: 'Internet',
-    description: 'Addictive',
+    body: 'Addictive',
+    author: 'rty456'
 }, {
     id: 'eee',
     title: 'Fish',
-    description: 'Tasty',
-    published: 2013
+    body: 'Tasty',
+    published: true,
+    author: 'rty456'
+}];
+
+const comments = [{
+    id: '123',
+    text: 'So hot',
+    author: 'ert345',
+    post: 'www'
+}, {
+    id: '234',
+    text: 'So cold',
+    author: 'rty456',
+    post: 'www'
+}, {
+    id: '345',
+    text: 'Hey, your post is great',
+    author: '567tyu',
+    post: 'eee'
+}, {
+    id: '456',
+    text: 'What a great article!',
+    author: '567tyu',
+    post: 'eee'
 }];
 
 const typeDefs = `
     type Query {
-        users(query: String): [User!]!
-        posts(query: String): [Post!]!
-        me (name: String, position: String): User!
-        post: Post!
-        grades: [Int!]!
-        add(numbers: [Float!]!): Float
+        comments: [Comment!]!
+        users: [User!]!
+        posts: [Post!]!
     }
 
     type User {
@@ -54,109 +70,63 @@ const typeDefs = `
         name: String!
         email: String!
         age: Int
+        posts: [Post!]!
+        comments: [Comment!]!
     }
 
     type Post {
         id: ID!
         title: String!
-        published: Int
-        description: String!
+        body: String!
+        published: Boolean
+        author: User!
+        comments: [Comment!]!
+    }
+
+    type Comment {
+        id: ID!
+        text: String!
+        author: User!
+        post: Post!
     }
 `;
 
-//1) Scalar types
-// const typeDefs = `
-//     type Query {
-//         grades: [Int!]!
-//         add(numbers: [Float!]!): Float
-        
-//     }
-// `;
-
 const resolvers = {
-    Query : {
-        // Custom type
-        // When Custom type using array,
-        //  we do not need to square bracket in fetching data.
-        /* 
-            users {
-               [id]  ==> x
-            }
-
-            Instead,
-            users {
-               id  ==> 0
-            }
-        */
-        // 1) simple return
-        // users(parent, args, ctx, info) {
-            // 1) return users;
-            
-        // 2) With args
-        users(parent, { query }, ctx, info) {
-           if(!query) {
-               return users;
-           }
-           // includes for string!!! return true or false
-           return users.filter(user => user.name.toLowerCase().includes(query.toLowerCase()) );
-            
+    Query: {
+        users(parent, args, ctx, info) {
+            return users;
         },
-        //Challenge
-        posts(parent, { query }, ctx, info) {
-            if(!query) {
-                return posts;
-            }
-
-            return posts.filter(post =>
-                // mine 
-                // post.title.toLowerCase().includes(query.toLowerCase()) || 
-                // post.description.toLowerCase().includes(query.toLowerCase()));
-
-                
-
-            {
-                // Master
-                const isTitleMatched = post.title.toLowerCase().includes(query.toLowerCase());
-                const isDescriptionMatched = post.description.toLowerCase().includes(query.toLowerCase());
-
-                return isTitleMatched || isDescriptionMatched;
-            })
+        posts(parent, args, ctx, info) {
+            return posts;
         },
-        me(parent, args, ctx, info) {
-            return {
-                id: '123qwe',
-                name: 'James',
-                email: 'abc@abc.com',
-                age: 23
-            }
+        comments(parent, args, ctx, info) {
+            return comments;
+        }
+    },
+    User: {
+        posts(parent, args, ctx, info) {
+            console.log(parent)
+            return posts.filter(post => post.author === parent.id);
+        },
+        comments(parent, args, ctx, info) {
+            return comments.filter(comment => comment.author === parent.id);
+        }
+    },
+    Post: {
+        author(parent, args, ctx, info) {
+            return users.find(user => user.id === parent.author)
+        },
+        comments(parent, args, ctx, info) {
+            return comments.filter(comment => comment.post === parent.id);
+        }
+    },
+    Comment: {
+        author(parent, args, ctx, info) {
+            return users.find(user =>  user.id === parent.author);
         },
         post(parent, args, ctx, info) {
-            return { 
-                id: '234wer',
-                title: 'Manager',
-                description: 'You ar awesome',
-                published: 2009
-            }
-        },
-        // Scalr type
-        grades(parent, args, ctx, info) {
-            return [ 99, 10, 22 ];
-        },
-        add(parent, { numbers }, ctx, info) {
-            //console.log(numbers)
-            if(numbers.length === 0) {
-                return 0;
-            }
-
-            // array.reduce!!! --- Important
-            // [ 1, 2, 5, 7]
-            // acummulator : at the beginning 1 
-            //      but it is accumulated in a defined way
-            // currentValue: started in the second value, 
-            //      then third value, forth value .....
-            return numbers.reduce((accumulator, currentValue) => accumulator + currentValue)
+            return posts.find(post => post.id === parent.post);
         }
-        
     }
 }
 
@@ -165,4 +135,4 @@ const server = new GraphQLServer({
     resolvers
 });
 
-server.start(() => console.log('graphql query!!!'));
+server.start(() => console.log('Challenge 1'));
