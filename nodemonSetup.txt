@@ -2,3 +2,15 @@
 
 2. package.json : Remember it is a babel-node
 "start": "nodemon src/index.js --exec babel-node"
+
+3. nodemon extenstion
+   - In order to extend the file type support
+   - Default support for file types : the .js, .mjs, .coffee, .litcoffee, and .json extensions
+   - In order to add the types, 1) go to package.json
+     add "--ext js,graphql" into the start field like the one below.
+
+    "start": "nodemon restructuring/index.js --ext js,graphql --exec babel-node",
+
+    
+
+    
