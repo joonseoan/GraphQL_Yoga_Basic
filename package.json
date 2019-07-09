@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon mutations/update_after_restructuring/index.js --ext js,graphql --exec babel-node",
+    "start": "nodemon subsription/index.js --ext js,graphql --exec babel-node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
