@@ -1,5 +1,28 @@
 import uuidv4 from 'uuid/v4'; 
 
+/* 
+    [ENUM]
+    1. A special type that defines a set of constants.
+    2. This type can then be used as the type for a field (similar to scalar adn custom object types)
+    3. Values for the field must be one of the constants for the type
+
+    // userRole - standard, editor, admin
+
+    // type User {
+    //     role: userRole!
+    // }
+
+    // Enum can be mainly used to replace Boolean.
+    // For instance, intead of "true" or "false" which is the one of both
+    //  Enum is able to expand "cases", for instance, in Laptop's power status.
+    //  The laptop has on, off, and sleep modes which are three states.
+    // Let's use ENUM to represent "CREATE", "UPDATE", and "DELETE" in subscription.
+    // Go to mutation's Subscription type of the Schema file.
+
+
+*/
+
+
 const Mutation = {
     createUser(parent, { data: { name, email, age }}, { db: { users }}, info) {
          const emailTaken = users.some(user => user.email === email);
@@ -212,7 +235,7 @@ const Mutation = {
 
          return comment;
      },
-     updateComment(parent, { id, data: { text, author, post } }, { db: { users, posts, comments }}, info) {
+     updateComment(parent, { id, data: { text, author, post } }, { db: { users, posts, comments }, pubsub }, info) {
          const isUserVerified = users.some(user => user.id === author);
          if(!isUserVerified) throw new Error('Unable to find the user');
 

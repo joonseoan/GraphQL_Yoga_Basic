@@ -107,14 +107,27 @@ input updateCommentInput {
     post: ID!
 }
 
+# ENUM : We can use the one of three String types
+enum MutationType {
+    CREATED
+    UPDATED
+    DELETED    
+}
+
 type PostSubscriptionPayload {
     # mutatoin: Sting! => a mutation name
-    mutation: String!
+    
+    # 1)
+    # mutation: String!
+
+    # 2) Instead of String!
+    mutation: MutationType!
     data: Post!
 }
 
 # Challenge
 type CommentSubscriptionPayload {
-    mutation: String!
+    # mutation: String!
+    mutation: MutationType!
     data: Comment!
 }
